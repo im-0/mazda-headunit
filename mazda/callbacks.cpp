@@ -758,16 +758,27 @@ void MazdaEventCallbacks::HandleNaviTurnDistance(IHUConnectionThreadInterface& s
             now_unit = HudDistanceUnit::METERS;
         }
   }
-  
+
+  bool changed = false;
+
   if (now_distance != navi_data->distance || now_unit != navi_data->distance_unit) {
     navi_data->distance_unit = now_unit;
     navi_data->distance = now_distance;
     navi_data->changed = 1;
+    changed = true;
   }
 
   if (navi_data->time_until != request.time_until()) {
     navi_data->time_until = request.time_until();
     navi_data->changed = 1;
+    changed = true;
+  }
+
+  if (changed) {
+    navi_data->previous_msg = navi_data->previous_msg + 1;
+    if (navi_data->previous_msg == 8){
+      navi_data->previous_msg = 1;
+    }
   }
 
   hudmutex.unlock();
